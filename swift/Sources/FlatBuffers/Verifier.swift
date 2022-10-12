@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
+#if !os(WASI)
 import Foundation
+#else
+import SwiftOverlayShims
+#endif
 
 /// Verifier that check if the buffer passed into it is a valid,
 /// safe, aligned Flatbuffers object since swift read from `unsafeMemory`
@@ -176,14 +180,18 @@ public struct Verifier {
 
     let reportedOverflow: (partialValue: UInt32, overflow: Bool)
     if offset > 0 {
-      reportedOverflow = _int32Position.subtractingReportingOverflow(offset.magnitude)
+      reportedOverflow = _int32Position
+        .subtractingReportingOverflow(offset.magnitude)
     } else {
-      reportedOverflow = _int32Position.addingReportingOverflow(offset.magnitude)
+      reportedOverflow = _int32Position
+        .addingReportingOverflow(offset.magnitude)
     }
 
     /// since `subtractingReportingOverflow` & `addingReportingOverflow` returns true,
     /// if there is overflow we return failure
-    if reportedOverflow.overflow || reportedOverflow.partialValue > _buffer.capacity {
+    if reportedOverflow.overflow || reportedOverflow.partialValue > _buffer
+      .capacity
+    {
       throw FlatbuffersErrors.signedOffsetOutOfBounds(
         offset: Int(offset),
         position: position)
@@ -196,4 +204,14 @@ public struct Verifier {
   internal mutating func finish() {
     _depth -= 1
   }
+
+  mutating func verify(id: String) throws {
+    let size = MemoryLayout<Int32>.size
+    let str = _buffer.readString(at: size, count: size)
+    if id == str {
+      return
+    }
+    throw FlatbuffersErrors.bufferIdDidntMatchPassedId
+  }
+
 }

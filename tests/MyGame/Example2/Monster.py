@@ -28,14 +28,12 @@ class Monster(object):
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
 
-def Start(builder): builder.StartObject(0)
-def MonsterStart(builder):
-    """This method is deprecated. Please switch to Start."""
-    return Start(builder)
-def End(builder): return builder.EndObject()
-def MonsterEnd(builder):
-    """This method is deprecated. Please switch to End."""
-    return End(builder)
+def MonsterStart(builder): builder.StartObject(0)
+def Start(builder):
+    return MonsterStart(builder)
+def MonsterEnd(builder): return builder.EndObject()
+def End(builder):
+    return MonsterEnd(builder)
 
 class MonsterT(object):
 
@@ -45,8 +43,9 @@ class MonsterT(object):
 
     @classmethod
     def InitFromBuf(cls, buf, pos):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, 0)
         monster = Monster()
-        monster.Init(buf, pos)
+        monster.Init(buf, pos+n)
         return cls.InitFromObj(monster)
 
     @classmethod
@@ -62,6 +61,6 @@ class MonsterT(object):
 
     # MonsterT
     def Pack(self, builder):
-        Start(builder)
-        monster = End(builder)
+        MonsterStart(builder)
+        monster = MonsterEnd(builder)
         return monster
