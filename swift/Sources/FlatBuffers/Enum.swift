@@ -14,10 +14,15 @@
  * limitations under the License.
  */
 
+#if !os(WASI)
 import Foundation
+#else
+import SwiftOverlayShims
+#endif
 
 /// Enum is a protocol that all flatbuffers enums should conform to
-/// Since it allows us to get the actual `ByteSize` and `Value`
+/// Since it allows us to get the actual `ByteSize` and `Value` from
+/// a swift enum.
 public protocol Enum {
   /// associatedtype that the type of the enum should conform to
   associatedtype T: Scalar & Verifiable
