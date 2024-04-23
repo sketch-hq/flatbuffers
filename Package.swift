@@ -1,4 +1,4 @@
-// swift-tools-version:5.2
+// swift-tools-version:5.9
 /*
  * Copyright 2020 Google Inc. All rights reserved.
  *
@@ -20,8 +20,8 @@ import PackageDescription
 let package = Package(
   name: "FlatBuffers",
   platforms: [
-    .iOS(.v11),
-    .macOS(.v10_14),
+    .iOS("16.4"),
+    .macOS(.v13),
   ],
   products: [
     .library(
